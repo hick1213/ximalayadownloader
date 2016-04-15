@@ -16,7 +16,7 @@ class Xmly():
     def getVoiceUrl(self,html):
         # print html
         jsonStr = json.loads(html)
-        return jsonStr["title"].encode('utf-8'),jsonStr["play_path"]
+        return jsonStr["formatted_created_at"].encode('utf-8')[:10]+jsonStr["title"].encode('utf-8'),jsonStr["play_path"]
 
     def download(self,url,filepath):
         jsonUrl = self.URL_PRIFIX + self.getJsonUrl(url)
@@ -35,21 +35,21 @@ class Xmly():
         return html
 
     def changeStatus(self,status):
-      sys.stdout.write(status + "\r")
+      sys.stdout.write(status + "\n")
       sys.stdout.flush()
 
     def downLoadFile(self,url,filepath,fileName):
         # 去掉空格否则转换格式会出问题
-        fileName = fileName.replace(" ","")
+        fileName = fileName.replace(" ","").replace('?',u"？").replace('/',u"~")
         if os.path.exists(os.path.splitext(os.path.join(filepath,fileName))[0] + ".mp3"):
-          print '已经存在:' + fileName
+          sys.stdout.write('已经存在:' + fileName)
           return
-        self.changeStatus("Downloading...")
+        self.changeStatus("Downloading..."+ fileName)
         f = urllib2.urlopen(url) 
         if not os.path.exists(os.path.join(filepath,fileName)):
-          with open(os.path.join(filepath,fileName), "wb") as code:
+          with open(os.path.join(filepath,fileName), "wb+") as code:
             code.write(f.read()) 
-        self.change2MP3(os.path.join(filepath,fileName))
+        #self.change2MP3(os.path.join(filepath,fileName))
 
     def downloadalbum(self,url,filepath):
         self.changeStatus("Start get album list...")
@@ -105,7 +105,7 @@ if __name__ == '__main__':
     # url = "http://www.ximalaya.com/1000623/sound/1035320"
     xmly = Xmly()
     # xmly.download(url,".")
-    xmly.downloadalbum("http://www.ximalaya.com/1000623/album/209295",os.getcwd())
+    pages = 8
+    for page in range(1,pages+1):
+        xmly.downloadalbum("http://www.ximalaya.com/19879790/album/321911?page="+str(page),os.getcwd())
     # xmly.download("http://www.ximalaya.com//1000623/sound/1043163",os.getcwd())
-
-
